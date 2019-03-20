@@ -4,6 +4,7 @@
         "accession": "ENCAN522RJU",
         "dataset": "ENCSR000AEN",
         "analysis_template": "2effa0ed-cb9f-4687-aab2-16d7f69cdc5e",
+        "input_files_to_analyze": ["ENCFF001RDC", "ENCFF001RCU", "ENCFF001RDB", "ENCFF001RCT"],
         "status": "released"
     },
     {
@@ -11,6 +12,7 @@
         "accession": "ENCAN756PCB",
         "dataset": "ENCSR001REF",
         "analysis_template": "ba1da4d8-dff1-421e-ac7b-b0db65fc2daa",
+        "input_files_to_analyze": ["ENCFF019HGN"],
         "status": "released"
     },
     {
@@ -18,6 +20,7 @@
         "accession": "ENCAN442SFU",
         "dataset": "ENCSR765JPC",
         "analysis_template": "630fc904-7f7d-44e5-a898-fbb55956976c",
+        "input_files_to_analyze": ["ENCFF431TKZ", "ENCFF360FSI", "ENCFF504RKH", "ENCFF958GWJ", "SRR1270627"],
         "status": "released"
     },
     {

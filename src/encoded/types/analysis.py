@@ -40,6 +40,7 @@ class Analysis(Item):
     ]
     _duplicated_step_runs = []
     _miss_steps = []
+    _unexpected_step_runs = []
 
     @calculated_property(define=True, schema={
         "title": "Analysis step run(s)",
@@ -74,7 +75,7 @@ class Analysis(Item):
                 step_run_obj['analysis_step_version'],
                 '@@object?skip_calculated=true'
             )['analysis_step']
-            input_file_ids = tuple(sorted(step_run_obj['input_files']))
+            input_file_ids = tuple(sorted(step_run_obj.get('input_files', [])))
             if (step_id, input_file_ids) in filtered_step_runs:
                 # Found duplicated analysis_step_runs
                 filtered_step_runs[(step_id, input_file_ids)].append(step_run_obj['@id'])
@@ -82,9 +83,10 @@ class Analysis(Item):
                 filtered_step_runs[(step_id, input_file_ids)] = [step_run_obj['@id']]
         analysis_step_runs = []
         for step_id, input_file_ids in filtered_step_runs:
-            if step_id not in expected_step_ids:
-                continue
             step_run_ids = filtered_step_runs[(step_id, input_file_ids)]
+            if step_id not in expected_step_ids:
+                self._unexpected_step_runs.append(step_run_ids)
+                continue
             expected_step_ids.remove(step_id)
             analysis_step_runs.extend(step_run_ids)
             if len(step_run_ids) > 1:
@@ -114,13 +116,30 @@ class Analysis(Item):
             "type": "array",
             "items": {
                 "type": "string",
-                "linkTo": "AnalysisStep",
+                "linkTo": "AnalysisStepRun",
             }
         },
         "notSubmittable": True,
     })
     def duplicated_step_runs(self, request, analysis_step_runs):
         return self._duplicated_step_runs
+
+    @calculated_property(condition='analysis_step_runs', schema={
+        "title": "Unexpected analysis step runs",
+        "description": "Analysis step runs which are unexpected in analysis template.",
+        "type": "array",
+        "items": {
+            "title": "A set of unexpected analysis step runs",
+            "type": "array",
+            "items": {
+                "type": "string",
+                "linkTo": "AnalysisStepRun",
+            }
+        },
+        "notSubmittable": True,
+    })
+    def unexpected_step_runs(self, request, analysis_step_runs):
+        return self._unexpected_step_runs
 
     @calculated_property(condition='analysis_step_runs', schema={
         "title": "Output files",
@@ -138,6 +157,26 @@ class Analysis(Item):
             if 'output_files' in step_run_obj:
                 output_files |= set(step_run_obj['output_files'])
         return paths_filtered_by_status(request, output_files)
+
+    @calculated_property(condition='analysis_step_runs', schema={
+        "title": "Input files analyzed",
+        "type": "array",
+        "items": {
+            "type": "string",
+            "linkTo": "File",
+        },
+        "notSubmittable": True,
+    })
+    def input_files_analyzed(self, request, analysis_step_runs):
+        input_files = set()
+        output_files = set()
+        for step_run in analysis_step_runs:
+            step_run_obj = request.embed(step_run, '@@object?skip_calculated=true')
+            if 'output_files' in step_run_obj:
+                output_files |= set(step_run_obj['output_files'])
+            if 'input_files' in step_run_obj:
+                input_files |= set(step_run_obj['input_files'])
+        return paths_filtered_by_status(request, input_files - output_files)
 
 
 @collection(

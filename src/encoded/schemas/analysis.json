@@ -37,6 +37,18 @@
             "type": "string",
             "linkTo": "AnalysisTemplate"
         },
+        "input_files_to_analyze": {
+            "title": "Input files to be analyzed",
+            "description": "Input files which should be analyzed.",
+            "type": "array",
+            "permission": "import_items",
+            "items": {
+                "title": "Input file",
+                "comment": "See file.json for available identifiers.",
+                "type": "string",
+                "linkTo": "File"
+            }
+        },
         "status": {
             "title": "Analysis status",
             "type": "string",

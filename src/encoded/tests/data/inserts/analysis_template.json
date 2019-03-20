@@ -1,6 +1,7 @@
 [
     {
         "uuid": "2effa0ed-cb9f-4687-aab2-16d7f69cdc5e",
+        "pipeline": "ENCPL001GRV",
         "analysis_steps": [
             "alignment-test-step-v-1",
             "signal-test-step-v-1"
@@ -10,6 +11,7 @@
     },
     {
         "uuid": "ba1da4d8-dff1-421e-ac7b-b0db65fc2daa",
+        "pipeline": "ENCPL001ENC",
         "analysis_steps": [
             "prep-bismark-step-v-1",
             "encode-2-step-v-1"
@@ -19,6 +21,7 @@
     },
     {
         "uuid": "630fc904-7f7d-44e5-a898-fbb55956976c",
+        "pipeline": "ENCPL002BIS",
         "analysis_steps": [
             "mott-trim-align-bismark-step-v-1",
             "extract-bismark-step-v-1"
@@ -28,6 +31,7 @@
     },
     {
         "uuid": "b7eaef40-feb2-479d-b006-ee3798bb7b3a",
+        "pipeline": "ENCPL001ENC",
         "analysis_steps": [
             "encode-2-step-v-1"
         ],
@@ -36,6 +40,7 @@
     },
     {
         "uuid": "fe5729de-5e6c-4280-835d-3dc8a1e38205",
+        "pipeline": "ENCPL001ENC",
         "analysis_steps": [
             "encode-2-step-v-1"
         ],
