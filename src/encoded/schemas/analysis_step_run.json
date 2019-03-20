@@ -25,6 +25,56 @@
             "type": "string",
             "linkTo": "AnalysisStepVersion"
         },
+        "assembly": {
+            "title": "Mapping assembly",
+            "description": "Genome assembly used in the analysis.",
+            "type": "string",
+            "permission": "import_items",
+            "enum": [
+                "ce10",
+                "ce11",
+                "dm3",
+                "dm6",
+                "GRCh38-minimal",
+                "GRCh38",
+                "hg19",
+                "J02459.1",
+                "mm10-minimal",
+                "mm10",
+                "mm9"
+            ]
+        },
+        "dataset": {
+            "title": "Analyzed dataset",
+            "description": "The dataset analyzed.",
+            "type": "string",
+            "linkTo": "Dataset",
+            "permission": "import_items"
+        },
+        "input_files": {
+            "title": "Input files",
+            "description": "Input files to this analysis step run.",
+            "type": "array",
+            "permission": "import_items",
+            "items": {
+                "title": "Input file",
+                "comment": "See file.json for available identifiers.",
+                "type": "string",
+                "linkTo": "File"
+            }
+        },
+        "output_files": {
+            "title": "Output files",
+            "description": "Output files to this analysis step fun.",
+            "type": "array",
+            "permission": "import_items",
+            "items": {
+                "title": "Output file",
+                "comment": "See file.json for available identifiers.",
+                "type": "string",
+                "linkTo": "File"
+            }
+        },
         "dx_applet_details": {
             "title": "DNA Nexus applet details",
             "description": "Metadata capture from DNA Nexus applets",

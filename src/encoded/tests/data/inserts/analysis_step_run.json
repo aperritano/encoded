@@ -2,17 +2,40 @@
     {
         "uuid": "e2c67389-1e84-4506-8ddc-03b566ce4995",
         "status": "released",
-        "analysis_step_version": "ab7ec880-50ab-11e4-916c-0800200c9a66"
+        "analysis_step_version": "ab7ec880-50ab-11e4-916c-0800200c9a66",
+        "assembly": "hg19",
+        "dataset": "ENCSR000AEN",
+        "input_files": ["ENCFF001RCU", "ENCFF001RCT", "ENCFF001RDB"],
+        "output_files": ["ENCFF001RCV", "ENCFF001RCW"]
     },
     {
         "uuid": "a2cc2a38-ad62-4f01-bd5b-0ae31e6f3024",
         "status": "released",
-        "analysis_step_version": "c4a33ee0-50ab-11e4-916c-0800200c9a66"
+        "analysis_step_version": "c4a33ee0-50ab-11e4-916c-0800200c9a66",
+        "assembly": "GRCh38",
+        "dataset": "ENCSR000AEN",
+        "input_files": ["ENCFF001RCW", "ENCFF001RCV", "ENCFF001XCV"],
+        "output_files": ["ENCFF001RCY", "ENCFF001RCZ"]
     },
     {
         "uuid": "4bb6cea7-7a6a-470b-8c19-8582300c54fd",
         "status": "released",
         "analysis_step_version": "a25381ab-1740-42f7-8d5a-20bb2a2b9549",
+        "assembly": "hg19",
+        "dataset": "ENCSR001REF",
+        "input_files": ["ENCFF019HGN"],
+        "output_files": [
+            "ENCFF019HBG",
+            "ENCFF020HBG",
+            "ENCFF021HBG",
+            "ENCFF022HBG",
+            "ENCFF023HBG",
+            "ENCFF024HBG",
+            "ENCFF025HBG",
+            "ENCFF026HBG",
+            "ENCFF027HBG",
+            "ENCFF240XVJ"
+        ],
         "dx_applet_details": [
             {
                 "dx_job_id": "job-BV0168j0z53k72z0Xkq003jX",
@@ -103,6 +126,10 @@
         "uuid": "7c81414f-a9c0-44ed-87fb-2e2207733d3b",
         "status": "released",
         "analysis_step_version": "36a667fe-e98c-402d-babf-88a9d39df5ff",
+        "assembly": "GRCh38",
+        "dataset": "ENCSR765JPC",
+        "input_files": ["ENCFF431TKZ", "ENCFF504RKH", "ENCFF958GWJ", "ENCFF360FSI", "ENCFF021HBG", "ENCFF022HBG", "ENCFF023HBG", "ENCFF024HBG", "ENCFF025HBG", "ENCFF026HBG", "ENCFF027HBG"],
+        "output_files": ["ENCFF434GXF", "ENCFF444GXF"],
         "dx_applet_details": [
             {
                 "dx_job_id": " job-BV016900z53k72z0Xkq003jY",
@@ -342,6 +369,10 @@
         "uuid": "2d664a68-ea7e-4e9a-b718-95e52e4c62df",
         "status": "released",
         "analysis_step_version": "aa598eaa-eda4-4fb3-b313-072f95de58a4",
+        "assembly": "GRCh38",
+        "dataset": "ENCSR765JPC",
+        "input_files": ["ENCFF434GXF", "ENCFF444GXF"],
+        "output_files": ["ENCFF690MGJ", "ENCFF145DKR"],
         "dx_applet_details": [
             {
                 "dx_job_id": "job-BV5FpPQ0z53k785K1Ggvbv1z",
@@ -464,7 +495,20 @@
     {
         "uuid": "63b1b347-f008-4103-8d20-0e12f54d1882",
         "status": "released",
-        "analysis_step_version": "1b7bec83-dd21-4086-8673-2e08cf8f1c0f"
+        "analysis_step_version": "1b7bec83-dd21-4086-8673-2e08cf8f1c0f",
+        "assembly": "hg19",
+        "dataset": "ENCSR000DZQ",
+        "input_files": ["ENCFF000VUQ"],
+        "output_files": ["ENCFF002COS", "ENCFF003COS"]
+    },
+    {
+        "uuid": "9d3792a6-5e2e-4764-98ef-9c91d3193478",
+        "status": "released",
+        "analysis_step_version": "1b7bec83-dd21-4086-8673-2e08cf8f1c0f",
+        "assembly": "hg19",
+        "dataset": "ENCSR000DZQ",
+        "input_files": ["ENCFF000VUQ"],
+        "output_files": ["ENCFF002COS", "ENCFF003COS"]
     },
     {
         "uuid": "472a9e56-3304-4e2b-b352-ddcc2e310a92",

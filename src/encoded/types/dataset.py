@@ -73,6 +73,8 @@ class Dataset(Item):
         'references'
     ]
     audit_inherit = [
+        'analyses',
+        'analysis_step_runs',
         'original_files',
         'revoked_files',
         'contributing_files'
@@ -88,6 +90,8 @@ class Dataset(Item):
     name_key = 'accession'
     rev = {
         'original_files': ('File', 'dataset'),
+        'analyses': ('Analysis', 'dataset'),
+        'analysis_step_runs': ('AnalysisStepRun', 'dataset')
     }
 
     @calculated_property(schema={
@@ -186,6 +190,36 @@ class Dataset(Item):
     })
     def month_released(self, date_released):
         return datetime.datetime.strptime(date_released, '%Y-%m-%d').strftime('%B, %Y')
+
+    @calculated_property(schema={
+        "title": "Analyses",
+        "description": "A collection of analyses performed on the dataset.",
+        "comment": "See analysis.json for available identifiers.",
+        "type": "array",
+        "items": {
+            "title": "Analysis",
+            "type": "string",
+            "linkFrom": "Analysis.dataset"
+        },
+        "notSubmittable": True,
+    })
+    def analyses(self, request, analyses):
+        return paths_filtered_by_status(request, analyses)
+
+    @calculated_property(schema={
+        "title": "Analysis step runs",
+        "description": "A collection of analysis step runs analyzing this dataset.",
+        "comment": "See analysis_step_run.json for available identifiers.",
+        "type": "array",
+        "items": {
+            "title": "Analysis step run",
+            "type": "string",
+            "linkFrom": "AnalysisStepRun.dataset"
+        },
+        "notSubmittable": True,
+    })
+    def analysis_step_runs(self, request, analysis_step_runs):
+        return paths_filtered_by_status(request, analysis_step_runs)
 
 
 class FileSet(Dataset):

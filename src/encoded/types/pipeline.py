@@ -180,3 +180,25 @@ class AnalysisStepRun(Item):
     audit_inherit = ['*']
     # Avoid using reverse links on this object as invalidating a
     # step_run can cause thousands of objects to be reindexed.
+
+    @calculated_property(schema={
+        "description": "List of steps run right after this step.",
+        "comment": "Do not submit. Values in the list are reverse links of "
+                   "analysis step run(s).",
+        "title": "Following analysis step run(s)",
+        "type": "array",
+        "items": {
+            "type": ['string', 'object'],
+            "linkFrom": "AnalysisStepRun.previous_step_runs"
+        },
+        "notSubmittable": True,
+    })
+    def previous_step_runs(self, request, input_files=None):
+        if not input_files:
+            return None
+        previous_step_runs = set()
+        for f in paths_filtered_by_status(request, input_files):
+            file_obj = request.embed(f, '@@object')
+            if 'output_from_step_run' in file_obj:
+                previous_step_runs |= set(file_obj['output_from_step_run'])
+        return sorted(previous_step_runs)

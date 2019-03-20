@@ -1,0 +1,37 @@
+[
+    {
+        "uuid": "dda4d30c-97f2-4d3d-a2b3-09adf13acf2b",
+        "accession": "ENCAN522RJU",
+        "dataset": "ENCSR000AEN",
+        "analysis_template": "2effa0ed-cb9f-4687-aab2-16d7f69cdc5e",
+        "status": "released"
+    },
+    {
+        "uuid": "f64751a3-1808-4093-8028-c6456a363aa6",
+        "accession": "ENCAN756PCB",
+        "dataset": "ENCSR001REF",
+        "analysis_template": "ba1da4d8-dff1-421e-ac7b-b0db65fc2daa",
+        "status": "released"
+    },
+    {
+        "uuid": "a5fb1fdb-7857-4cb5-866e-fe294c1b2b0f",
+        "accession": "ENCAN442SFU",
+        "dataset": "ENCSR765JPC",
+        "analysis_template": "630fc904-7f7d-44e5-a898-fbb55956976c",
+        "status": "released"
+    },
+    {
+        "uuid": "8cd6c409-4b4e-4c21-b31c-6153468e41d3",
+        "accession": "ENCAN476NXM",
+        "dataset": "ENCSR000DZQ",
+        "analysis_template": "b7eaef40-feb2-479d-b006-ee3798bb7b3a",
+        "status": "released"
+    },
+    {
+        "uuid": "046b4e2a-4004-4704-80d2-833a9031b496",
+        "accession": "ENCAN018EYK",
+        "dataset": "ENCSR000DZQ",
+        "analysis_template": "fe5729de-5e6c-4280-835d-3dc8a1e38205",
+        "status": "released"
+    }
+]
