@@ -115,6 +115,8 @@ class File(Item):
         'analysis_step_version.software_versions.software',
         'quality_metrics',
         'step_run',
+        'biosample_ontology',
+        'target'
     ]
     audit_inherit = [
         'replicate',
@@ -207,6 +209,7 @@ class File(Item):
             return None
         item = root.get_by_uuid(paired_with[0])
         return request.resource_path(item)
+
 
     @calculated_property(schema={
         "title": "Download URL",
@@ -475,6 +478,47 @@ class File(Item):
      )
     def library(self, request, replicate):
         return request.embed(replicate, '@@object?skip_calculated=true').get('library')
+
+    @calculated_property(
+        condition='dataset',
+        define=True,
+        schema={
+            "title": "Assay term name",
+            "type": "string",
+            "notSubmittable": True,
+        }
+    )
+    def assay_term_name(self, request, dataset):
+        dataset = request.embed(dataset, '@@object?skip_calculated=true')
+        return dataset.get('assay_term_name')
+
+    @calculated_property(
+        condition='dataset',
+        define=True,
+        schema={
+            "title": "Biosample ontology",
+            "type": "string",
+            "notSubmittable": True,
+            "linkTo": "BiosampleType"
+        }
+    )
+    def biosample_ontology(self, request, dataset):
+        dataset = request.embed(dataset, '@@object?skip_calculated=true')
+        return dataset.get('biosample_ontology')
+
+    @calculated_property(
+        condition='dataset',
+        define=True,
+        schema={
+            "title": "Target",
+            "type": "string",
+            "notSubmittable": True,
+            "linkTo": "Target"
+        }
+    )
+    def target(self, request, dataset):
+        dataset = request.embed(dataset, '@@object?skip_calculated=true')
+        return dataset.get('target')
 
     @classmethod
     def create(cls, registry, uuid, properties, sheets=None):
