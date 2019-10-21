@@ -50,7 +50,7 @@ const portal = {
                 { id: 'encore', title: 'ENCORE', url: '/matrix/?type=Experiment&status=released&internal_tags=ENCORE', tag: 'collection' },
                 { id: 'entex', title: 'ENTEx', url: '/matrix/?type=Experiment&status=released&internal_tags=ENTEx', tag: 'collection' },
                 { id: 'sescc', title: 'SE Stem Cell Consortium', url: '/matrix/?type=Experiment&status=released&internal_tags=SESCC', tag: 'collection' },
-                { id: 'reference-epigenomes', title: 'Reference epigenomes', url: '/search/?type=ReferenceEpigenome&status=released', tag: 'collection' },
+                { id: 'reference-epigenomes', title: 'Reference epigenomes', url: '/reference-epigenome/?type=Experiment&related_series.@type=ReferenceEpigenome&replicates.library.biosample.donor.organism.scientific_name=Homo+sapiens', tag: 'collection' },
                 { id: 'mouse-dev-series', title: 'Mouse development series', url: '/search/?type=OrganismDevelopmentSeries&internal_tags=MouseDevSeries&status=released', tag: 'collection' },
                 { id: 'sep-mm-3' },
                 { id: 'region-search', title: 'Search by region', url: '/region-search/' },

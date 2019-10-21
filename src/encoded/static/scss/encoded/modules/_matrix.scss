@@ -56,7 +56,10 @@ $row-data-header-width: 200px;
     @at-root #{&}__data-wrapper {
         position: relative;
         padding-left: 10px;
-        flex: 0 1 auto;
+        flex-grow: 1;
+        flex-shrink: 1;
+        flex-basis: calc(100% - 20px);
+        width: calc(100% - 20px);
         border : 1px solid #eee;
         overflow: hidden;
     }
@@ -64,6 +67,7 @@ $row-data-header-width: 200px;
     @at-root #{&}__data {
         margin-right: 1px;
         overflow-x: auto;
+        overflow-y: hidden;
     }
 
     // Text/link rotation method from:
@@ -96,6 +100,12 @@ $row-data-header-width: 200px;
                 writing-mode: tb-rl;
                 transform: rotate(180deg);
                 color: #000;
+
+                // Column subcategory links
+                &.sub {
+                    padding-top: 20px;
+                    color: #808080;
+                }
 
                 &:hover {
                     background-color: #e0e0e0;
@@ -363,6 +373,17 @@ $row-data-header-width: 200px;
         background-color: #f0f0f0;
         z-index: 1;
     }
+
+    @at-root #{&}__disabled-cell {
+        background-image: url(/static/img/fine-diagonal-lines.svg);
+    }
+
+    @at-root #{&}__warning {
+        margin: 10px 15px 100px;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #606060;
+    }
 }
 
 
@@ -486,5 +507,45 @@ table.matrix th.group-all-groups-cell {
     .general-search-entry {
         margin-bottom: 0;
         padding-bottom: 0;
+    }
+}
+
+.matrix__content--reference-epigenome {
+    display: block;
+
+    .matrix__data-wrapper {
+        padding-left: 0;
+        overflow: visible;
+
+        .tab-content {
+            padding-left: 10px;
+            overflow: hidden;
+        }
+    }
+
+    .matrix__col-category-header {
+        > th {
+            width: 25px;
+
+            > a {
+                width: 25px;
+                line-height: 25px;
+            }
+        }
+    }
+
+    .matrix__row-data {
+        > td {
+            position: relative;
+            width: 25px;
+
+            > div {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 0;
+            }
+        }
     }
 }

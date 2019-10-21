@@ -1,8 +1,3 @@
-/**
- * @fileOverview Render both the experiment and audit matrices whenever their corresponding
- *               endpoints send their JSON.
- */
-
 import React from 'react';
 import PropTypes from 'prop-types';
 import pluralize from 'pluralize';
@@ -267,7 +262,7 @@ const convertExperimentToDataTable = (context, getRowCategories, getRowSubCatego
         const cells = Array(colCount);
         const subCategoryRows = renderedData.map((subCategoryBucket) => {
             // If needed, map the current subcategory queries to a query-string component.
-            const mappedSubCategoryQuery = mapSubCategoryQueries(subCategory, subCategoryBucket.key, rowCategoryBucket);
+            const mappedSubCategoryQuery = mapSubCategoryQueries(subCategory, subCategoryBucket.key);
 
             // Generate an array of data cells for a single subCategory row's data.
             cells.fill(null);
@@ -379,6 +374,10 @@ const MatrixHeader = ({ context }) => {
     const visualizeDisabledTitle = context.total > VISUALIZE_LIMIT ? `Filter to ${VISUALIZE_LIMIT} to visualize` : '';
 
     let clearButton;
+    const parsedUrl = url.parse(context['@id'], true);
+    parsedUrl.query.format = 'json';
+    parsedUrl.search = '';
+    console.log(url.format(parsedUrl));
     const searchQuery = url.parse(context['@id']).search;
     if (searchQuery) {
         // If we have a 'type' query string term along with others terms, we need a Clear Filters
@@ -635,7 +634,7 @@ const mapSubCategoryQueriesExperiment = (subCategory, subCategoryQuery) => (
 /**
  * View component for the experiment matrix page.
  */
-class Matrix extends React.Component {
+class ExperimentMatrix extends React.Component {
     constructor() {
         super();
         this.getRowCategories = this.getRowCategories.bind(this);
@@ -688,176 +687,14 @@ class Matrix extends React.Component {
     }
 }
 
-Matrix.propTypes = {
+ExperimentMatrix.propTypes = {
     context: PropTypes.object.isRequired,
 };
 
-Matrix.contextTypes = {
+ExperimentMatrix.contextTypes = {
     location_href: PropTypes.string,
     navigate: PropTypes.func,
     biosampleTypeColors: PropTypes.object, // DataColor instance for experiment project
 };
 
-globals.contentViews.register(Matrix, 'Matrix');
-
-
-/**
- * Determines the sorting order of the audits as they appear in the matrix.
- */
-const auditOrderKey = [
-    'no_audits',
-    'audit.WARNING.category',
-    'audit.NOT_COMPLIANT.category',
-    'audit.ERROR.category',
-    'audit.INTERNAL_ACTION.category',
-];
-
-/**
- * Determines the sorting order of the "No audits" subcategories.
- */
-const noAuditOrderKey = [
-    'no errors, compliant, and no warnings',
-    'no errors and compliant',
-    'no errors',
-    'no audits',
-];
-
-/**
- * Audit matrix rowCategory colors.
- */
-const auditColors = ['#009802', '#e0e000', '#ff8000', '#cc0700', '#a0a0a0'];
-
-/**
- * Maps audit keys to human-readable names.
- */
-const auditNames = {
-    no_audits: 'No audits',
-    'audit.WARNING.category': 'Warning',
-    'audit.NOT_COMPLIANT.category': 'Not Compliant',
-    'audit.ERROR.category': 'Error',
-    'audit.INTERNAL_ACTION.category': 'Internal Action',
-};
-
-
-/**
- * Map query values to a query-string component actually used in audit matrix row category link
- * queries.
- * @param {string} rowCategory Row category value to map
- * @param {object} rowCategoryBucket Matrix search result row bucket object
- *
- * @return {string} mapped row category query
- */
-const mapRowCategoryQueriesAudit = (rowCategory, rowCategoryBucket) => {
-    if (rowCategoryBucket.key === 'no_audits') {
-        return 'audit.ERROR.category%21=%2A&audit.NOT_COMPLIANT.category%21=%2A&audit.WARNING.category%21=%2A&audit.INTERNAL_ACTION.category%21=%2A';
-    }
-    return `${rowCategoryBucket.key}=%2A`;
-};
-
-
-/**
- * Map query values to a query-string component actually used in audit matrix subcategory link
- * queries.
- * @param {string} subCategory Subcategory value to map
- * @param {string} subCategoryQuery Subcategory query value to map
- * @param {object} rowCategoryBucket Matrix search result row bucket object
- *
- * @return {string} mapped subcategory query
- */
-const mapSubCategoryQueriesAudit = (subCategory, subCategoryQuery, rowCategoryBucket) => {
-    let query;
-    if (rowCategoryBucket.key === 'no_audits') {
-        switch (subCategoryQuery) {
-        case 'no audits':
-            query = 'audit.WARNING.category%21=%2A&audit.NOT_COMPLIANT.category%21=%2A&audit.ERROR.category%21=%2A&audit.INTERNAL_ACTION.category%21=%2A';
-            break;
-        case 'no errors':
-            query = 'audit.ERROR.category%21=%2A';
-            break;
-        case 'no errors, compliant, and no warnings':
-            query = 'audit.ERROR.category%21=%2A&audit.NOT_COMPLIANT.category%21=%2A&audit.WARNING.category%21=%2A';
-            break;
-        case 'no errors and compliant':
-            query = 'audit.ERROR.category%21=%2A&audit.NOT_COMPLIANT.category%21=%2A';
-            break;
-        default:
-            query = '';
-            break;
-        }
-    } else {
-        query = `${rowCategoryBucket.key}=${globals.encodedURIComponent(subCategoryQuery)}`;
-    }
-    return query;
-};
-
-
-/**
- * View component for the audit matrix page.
- */
-class AuditMatrix extends React.Component {
-    constructor() {
-        super();
-
-        // Bind this to non-React methods.
-        this.getRowCategories = this.getRowCategories.bind(this);
-        this.getRowSubCategories = this.getRowSubCategories.bind(this);
-    }
-
-    // Called to sort the audit row categories by the order in `auditOrderKey`.
-    getRowCategories() {
-        const rowCategory = this.props.context.matrix.y.group_by[0];
-        const rowCategories = this.props.context.matrix.y[rowCategory].buckets;
-        const rowCategoryData = _.sortBy(rowCategories, (categoryBucket =>
-            auditOrderKey.indexOf(categoryBucket.key)
-        ));
-        return {
-            rowCategoryData,
-            rowCategoryColors: auditColors,
-            rowCategoryNames: auditNames,
-        };
-    }
-
-    /**
-     * Called to retrieve subcategory data for the audit matrix. The subcategories get sorted only
-     * for the "No audits" category.
-     */
-    getRowSubCategories(rowCategoryBucket) {
-        const subCategoryName = this.props.context.matrix.y.group_by[1];
-        let subCategoryData = rowCategoryBucket[subCategoryName].buckets;
-        if (rowCategoryBucket.key === 'no_audits') {
-            subCategoryData = _.sortBy(subCategoryData, subCategoryDataBucket =>
-                noAuditOrderKey.indexOf(subCategoryDataBucket.key)
-            );
-        }
-        return subCategoryData;
-    }
-
-    render() {
-        const { context } = this.props;
-        const itemClass = globals.itemClass(context, 'view-item');
-
-        if (context.matrix.doc_count) {
-            return (
-                <Panel addClasses={itemClass}>
-                    <PanelBody>
-                        <MatrixHeader context={context} />
-                        <MatrixContent context={context} rowCategoryGetter={this.getRowCategories} rowSubCategoryGetter={this.getRowSubCategories} mapRowCategoryQueries={mapRowCategoryQueriesAudit} mapSubCategoryQueries={mapSubCategoryQueriesAudit} />
-                    </PanelBody>
-                </Panel>
-            );
-        }
-        return <h4>No results found</h4>;
-    }
-}
-
-AuditMatrix.propTypes = {
-    context: PropTypes.object.isRequired,
-};
-
-AuditMatrix.contextTypes = {
-    location_href: PropTypes.string,
-    navigate: PropTypes.func,
-    biosampleTypeColors: PropTypes.object, // DataColor instance for experiment project
-};
-
-globals.contentViews.register(AuditMatrix, 'AuditMatrix');
+globals.contentViews.register(ExperimentMatrix, 'Matrix');

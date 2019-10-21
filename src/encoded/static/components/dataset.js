@@ -1223,6 +1223,12 @@ const seriesComponents = {
     AggregateSeries: { title: 'aggregate series', table: basicTableColumns },
 };
 
+ViewControlRegistry.register('ReferenceEpigenome', [
+    ViewControlTypes.SEARCH,
+    ViewControlTypes.MATRIX,
+    ViewControlTypes.REPORT,
+]);
+
 export const SeriesComponent = (props, reactContext) => {
     const { context, auditIndicators, auditDetail } = props;
     const itemClass = globals.itemClass(context, 'view-item');

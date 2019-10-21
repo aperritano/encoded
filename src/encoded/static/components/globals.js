@@ -46,6 +46,9 @@ documentViews.detail = new Registry();
 // Report-page cell components
 export const reportCell = new Registry();
 
+// "Matrix" @type page renderers depending on query-string type specifier
+export const matrixViews = new Registry();
+
 export function itemClass(context, htmlClass) {
     let localHtmlClass = htmlClass || '';
     (context['@type'] || []).forEach((type) => {
@@ -92,6 +95,7 @@ export function unbindEvent(el, eventName, eventHandler) {
 
 // Encode a URI with much less intensity than encodeURIComponent but a bit more than encodeURI.
 // In addition to encodeURI, this function escapes exclamations and at signs.
+// TODO: Remove once all usage moves to encodedURIComponent from ../libs/query_string.js
 export function encodedURI(uri) {
     return encodeURI(uri).replace(/!/g, '%21').replace(/@/g, '%40');
 }
@@ -101,6 +105,7 @@ export function encodedURI(uri) {
 // `options.space` parameter, or '+' if not provided. Encodes equals sign if `options.encodeEquals`
 // set to true, or leaves the equals sign unencoded.
 // http://stackoverflow.com/questions/8143085/passing-and-through-a-uri-causes-a-403-error-how-can-i-encode-them#answer-8143232
+// TODO: Remove once all usage moves to ../libs/query_string.js
 export function encodedURIComponent(str, options = {}) {
     const spaceReplace = options.space || '+';
     const preEquals = encodeURIComponent(str)
