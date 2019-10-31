@@ -519,6 +519,11 @@ class MatrixPresentation extends React.Component {
     constructor(props) {
         super(props);
 
+        // Determine whether a biosample classification has been specified in the query string, and
+        // automatically expand the classification section if it has.
+        this.parsedUrl = url.parse(this.props.context['@id']);
+        this.query = new QueryString(this.parsedUrl.query);
+
         this.state = {
             /** Categories the user has expanded */
             expandedRowCategories: [],
@@ -541,7 +546,7 @@ class MatrixPresentation extends React.Component {
         this.handleScrollIndicator(this.scrollElement);
 
         // If URI changed, we need close any expanded rowCategories in case the URI change results
-        // in a huge increase in displayed data. Also update the scroll indicator if needed.
+        // in a huge increase in displayed data.
         if (prevProps.context['@id'] !== this.props.context['@id']) {
             this.setState({ expandedRowCategories: [] });
         }
@@ -610,17 +615,15 @@ class MatrixPresentation extends React.Component {
     // Handle a click on a tab.
     handleTabClick(tab) {
         const clickedOrganism = tab === 'All organisms' ? '' : tab;
-        const parsedUrl = url.parse(this.props.context['@id']);
-        const query = new QueryString(parsedUrl.query);
         if (clickedOrganism) {
-            query.replaceKeyValue('replicates.library.biosample.donor.organism.scientific_name', clickedOrganism);
+            this.query.replaceKeyValue('replicates.library.biosample.donor.organism.scientific_name', clickedOrganism);
         } else {
-            query.deleteKeyValue('replicates.library.biosample.donor.organism.scientific_name');
+            this.query.deleteKeyValue('replicates.library.biosample.donor.organism.scientific_name');
         }
-        parsedUrl.search = null;
-        parsedUrl.query = null;
-        const baseMatrixUrl = url.format(parsedUrl);
-        this.context.navigate(`${baseMatrixUrl}?${query.format()}`);
+        this.parsedUrl.search = null;
+        this.parsedUrl.query = null;
+        const baseMatrixUrl = url.format(this.parsedUrl);
+        this.context.navigate(`${baseMatrixUrl}?${this.query.format()}`);
     }
 
     render() {
@@ -643,12 +646,11 @@ class MatrixPresentation extends React.Component {
 
         // Determine the currently selected tab from the query string.
         let selectedTab = null;
-        const parsedUrl = url.parse(this.props.context['@id'], true);
-        const selectedOrganisms = parsedUrl.query['replicates.library.biosample.donor.organism.scientific_name'];
-        if (selectedOrganisms !== undefined && typeof selectedOrganisms !== 'object') {
+        const selectedOrganisms = this.query.getKeyValues('replicates.library.biosample.donor.organism.scientific_name');
+        if (selectedOrganisms.length === 1) {
             // Query string specifies exactly one organism. Select the corresponding tab if it
-            // exists, otherwise use "All organisms" tab.
-            selectedTab = availableOrganisms.includes(selectedOrganisms) ? selectedOrganisms : null;
+            // exists, otherwise don't select a tab.
+            selectedTab = availableOrganisms.includes(selectedOrganisms[0]) ? selectedOrganisms[0] : null;
         }
 
         // Convert encode matrix data to a DataTable object.
