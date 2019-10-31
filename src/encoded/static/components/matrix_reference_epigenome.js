@@ -520,13 +520,21 @@ class MatrixPresentation extends React.Component {
         super(props);
 
         // Determine whether a biosample classification has been specified in the query string, and
-        // automatically expand the classification section if it has.
+        // automatically expand the classification section if it has. Also cache the parsed URL and
+        // analyzed query string as we need these later in the render.
         this.parsedUrl = url.parse(this.props.context['@id']);
         this.query = new QueryString(this.parsedUrl.query);
+        const requestedClassifications = this.query.getKeyValues('biosample_ontology.classification');
+
+        // Gather the biosample classifications actually in the data and filter the requested
+        // classifications down to the actual data.
+        const classificationBuckets = props.context.matrix.y[props.context.matrix.y.group_by[0]].buckets;
+        const actualClassifications = classificationBuckets.map(bucket => bucket.key);
+        const filteredClassifications = requestedClassifications.filter(classification => actualClassifications.includes(classification));
 
         this.state = {
             /** Categories the user has expanded */
-            expandedRowCategories: [],
+            expandedRowCategories: filteredClassifications,
             /** Matrix object for currently selected organism; null for props.context */
             organismContext: null,
             /** True if matrix scrolled all the way to the right; used for flashing arrow */
