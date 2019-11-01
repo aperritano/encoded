@@ -4,6 +4,7 @@ import pluralize from 'pluralize';
 import _ from 'underscore';
 import url from 'url';
 import QueryString from '../libs/query_string';
+import * as encoding from '../libs/query_encoding';
 import { Panel, PanelBody, TabPanel } from '../libs/ui/panel';
 import { svgIcon } from '../libs/svg-icons';
 import { tintColor, isLight } from './datacolors';
@@ -288,17 +289,21 @@ const convertReferenceEpigenomeToDataTable = (context, expandedRowCategories, ex
     const colCategoriesWithSubcategories = Object.keys(colMap).filter(colCategoryName => colMap[colCategoryName].hasSubcategories);
 
     // Generate the hierarchical top-row sideways header labels. First item is null for the empty
-    // upper-left cell. At the end of this loop, rendering `{header}` shows this header row.
+    // upper-left cell. At the end of this loop, rendering `{header}` shows this header row. The
+    // `sortedCols` array gets mutated in this loop, acquiring a `query` property in each of its
+    // objects that gets used later to generate cell hrefs.
     const header = [{ header: null }].concat(sortedCols.map((colInfo) => {
-        const catQuery = `${COL_CATEGORY}=${globals.encodedURIComponent(colInfo.category)}`;
+        const categoryQuery = `${COL_CATEGORY}=${encoding.encodedURIComponent(colInfo.category)}`;
         if (!colInfo.subcategory) {
             // Add the category column links.
-            return { header: <a href={`${context.search_base}&${catQuery}`}>{colInfo.category}</a> };
+            colInfo.query = categoryQuery;
+            return { header: <a href={`${context.search_base}&${categoryQuery}`}>{colInfo.category}</a> };
         }
 
         // Add the subcategory column links.
-        const subCatQuery = `${COL_SUBCATEGORY}=${globals.encodedURIComponent(colInfo.subcategory)}`;
-        return { header: <a className="sub" href={`${context.search_base}&${catQuery}&${subCatQuery}`}>{colInfo.subcategory}</a> };
+        const subCategoryQuery = `${COL_SUBCATEGORY}=${encoding.encodedURIComponent(colInfo.subcategory)}`;
+        colInfo.query = `${categoryQuery}&${subCategoryQuery}`;
+        return { header: <a className="sub" href={`${context.search_base}&${categoryQuery}&${subCategoryQuery}`}>{colInfo.subcategory}</a> };
     }));
 
     // Generate the main table content including the data hierarchy, where the upper level of the
@@ -318,7 +323,7 @@ const convertReferenceEpigenomeToDataTable = (context, expandedRowCategories, ex
         const rowCategoryTextColor = isLight(rowCategoryColor) ? '#000' : '#fff';
         const rowSubcategoryBuckets = rowCategoryBucket[rowSubcategory].buckets;
         const expandableRowCategory = rowSubcategoryBuckets.length > SUB_CATEGORY_SHORT_SIZE;
-        const rowCategoryQuery = `${ROW_CATEGORY}=${globals.encodedURIComponent(rowCategoryBucket.key)}`;
+        const rowCategoryQuery = `${ROW_CATEGORY}=${encoding.encodedURIComponent(rowCategoryBucket.key)}`;
 
         // Update the row key mechanism.
         rowKeys[matrixRow] = rowCategoryBucket.key;
@@ -332,7 +337,7 @@ const convertReferenceEpigenomeToDataTable = (context, expandedRowCategories, ex
         // rowSubCategory on the left of the row.
         const cells = Array(colCount);
         const subcategoryRows = visibleRowSubcategoryBuckets.map((rowSubcategoryBucket) => {
-            const subCategoryQuery = `${ROW_SUBCATEGORY}=${globals.encodedURIComponent(rowSubcategoryBucket.key)}`;
+            const subCategoryQuery = `${ROW_SUBCATEGORY}=${encoding.encodedURIComponent(rowSubcategoryBucket.key)}`;
 
             // Generate an array of data cells for a single row subcategory. This might combine the
             // data from multiple reference epigenomes into one subcategory row -- effectively
@@ -347,13 +352,25 @@ const convertReferenceEpigenomeToDataTable = (context, expandedRowCategories, ex
                         rowSubcategoryColSubcategoryBuckets.forEach((cellData) => {
                             const colMapKey = `${rowSubcategoryColCategoryBucket.key}|${cellData.key}`;
                             const colIndex = colMap[colMapKey].col;
-                            cells[colIndex] = { content: <div style={{ backgroundColor: rowSubcategoryColor }} /> };
+                            cells[colIndex] = {
+                                content: (
+                                    <a href={`${context.search_base}&${rowCategoryQuery}&${subCategoryQuery}&${colMap[colMapKey].query}`} style={{ backgroundColor: rowSubcategoryColor }}>
+                                        <span className="sr-only">Search {rowCategoryBucket.key}, {rowSubcategoryBucket.key} for {rowSubcategoryColCategoryBucket.key}, {cellData.key}</span>
+                                    </a>
+                                ),
+                            };
                         });
                     } else {
                         // The column category does not have subcategories, so just add a colored
                         // cell for the column category.
                         const colIndex = colMap[rowSubcategoryColCategoryBucket.key].col;
-                        cells[colIndex] = { content: <div style={{ backgroundColor: rowSubcategoryColor }} /> };
+                        cells[colIndex] = {
+                            content: (
+                                <a href={`${context.search_base}&${rowCategoryQuery}&${subCategoryQuery}&${colMap[rowSubcategoryColCategoryBucket.key].query}`} style={{ backgroundColor: rowSubcategoryColor }}>
+                                    <span className="sr-only">Search {rowCategoryBucket.key}, {rowSubcategoryBucket.key} for {rowSubcategoryColCategoryBucket.key}</span>
+                                </a>
+                            ),
+                        };
                     }
                 }
             });
@@ -371,7 +388,7 @@ const convertReferenceEpigenomeToDataTable = (context, expandedRowCategories, ex
                 rowContent: [
                     {
                         header: (
-                            <a href={`${context.search_base}&${subCategoryQuery}`}>
+                            <a href={`${context.search_base}&${rowCategoryQuery}&${subCategoryQuery}`}>
                                 <div className="subcategory-row-text">{rowSubcategoryBucket.key}</div>
                             </a>
                         ),
