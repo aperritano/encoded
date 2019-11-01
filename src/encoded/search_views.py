@@ -38,11 +38,8 @@ def includeme(config):
     config.add_route('report', '/report{slash:/?}')
     config.add_route('matrixv2_raw', '/matrixv2_raw{slash:/?}')
     config.add_route('matrix', '/matrix{slash:/?}')
-<<<<<<< HEAD
     config.add_route('target_matrix', '/target-matrix{slash:/?}')
-=======
     config.add_route('reference-epigenome', '/reference-epigenome{slash:/?}')
->>>>>>> ba69b1bd9... ENCD-3680-re-matrix-back
     config.add_route('summary', '/summary{slash:/?}')
     config.add_route('audit', '/audit{slash:/?}')
     config.scan(__name__)
@@ -194,7 +191,6 @@ def generic_matrix(request, title_response_field_params=None, type_response_fiel
     return fr.render()
 
 
-<<<<<<< HEAD
 @view_config(route_name='matrix', request_method='GET', permission='search')
 def matrix(context, request):
     return generic_matrix(
@@ -222,7 +218,6 @@ def target_matrix(context, request):
             ],
         }
     )
-=======
 @view_config(route_name='reference-epigenome', request_method='GET', permission='search')
 def reference_epigenome(context, request):
     fr = FieldedResponse(
@@ -250,7 +245,6 @@ def reference_epigenome(context, request):
         ]
     )
     return fr.render()
->>>>>>> ba69b1bd9... ENCD-3680-re-matrix-back
 
 
 @view_config(route_name='summary', request_method='GET', permission='search')
