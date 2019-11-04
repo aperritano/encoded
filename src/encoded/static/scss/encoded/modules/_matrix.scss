@@ -534,6 +534,14 @@ table.matrix th.group-all-groups-cell {
         }
     }
 
+    .targetmatrix__col-category-header {
+        @extend .matrix__col-category-header;
+
+        th {
+            border-bottom: 1px solid #f0f0f0;
+        }
+    }
+
     .matrix__row-data {
         > td {
             position: relative;

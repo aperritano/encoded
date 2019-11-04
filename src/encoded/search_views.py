@@ -63,6 +63,7 @@ DEFAULT_ITEM_TYPES = [
     'Lab'
 ]
 
+TARGET_MATRIX_TITLE = 'TargetMatrix'
 
 @view_config(route_name='search', request_method='GET', permission='search')
 def search(context, request):
@@ -206,7 +207,7 @@ def target_matrix(context, request):
     return generic_matrix(
         request,
         title_response_field_params={'title': 'Target Matrix'},
-        type_response_field_params={'at_type': [MATRIX_TITLE]},
+        type_response_field_params={'at_type': [TARGET_MATRIX_TITLE]},
         response_field_params={
             'default_item_types': DEFAULT_ITEM_TYPES,
             'matrix_definition_name': 'target_matrix',

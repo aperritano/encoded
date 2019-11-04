@@ -778,3 +778,297 @@ ReferenceEpigenomeMatrix.contextTypes = {
 };
 
 globals.contentViews.register(ReferenceEpigenomeMatrix, 'ReferenceEpigenome');
+
+
+/**
+ * Takes matrix data from JSON and generates an object that <DataTable> can use to generate the JSX
+ * for the matrix. This is a shim between the experiment or audit data and the data <DataTable>
+ * needs.
+ * @param {object} context Matrix JSON for the page
+ * @param {array}  expandedRowCategories Names of rowCategories the user has expanded
+ * @param {func}   expanderClickHandler Called when the user expands/collapses a row category
+ *
+ * @return {object} Generated object suitable for passing to <DataTable>
+ */
+
+const convertTargetToDataTable = (context, expandedRowCategories, expanderClickHandler, selectedTab) => {
+    const colCategory = context.matrix.x.group_by[0];
+    const colSubcategory = context.matrix.x.group_by[1];
+    const rowCategory = context.matrix.y.group_by[0];
+    const rowSubcategory = context.matrix.y.group_by[1];
+
+    // Generate the mapping of column categories and subcategories.
+    const colMap = generateColMap(context);
+    const colCount = Object.keys(colMap).length;
+
+    // Convert column map to a sorted array of column labels for displaying in the matrix header.
+    // This is an array of the value objects in `colMap`, sorted by their `col` property.
+    const sortedCols = Object.keys(colMap).map(assayColKey => colMap[assayColKey]).sort((colInfoA, colInfoB) => colInfoA.col - colInfoB.col);
+
+    // Generate array of column category names for categories that have subcategories, for
+    // rendering those columns as disabled.
+    const colCategoriesWithSubcategories = Object.keys(colMap).filter(colCategoryName => colMap[colCategoryName].hasSubcategories);
+
+    // Generate the hierarchical top-row sideways header labels. First item is null for the empty
+    // upper-left cell. At the end of this loop, rendering `{header}` shows this header row. The
+    // `sortedCols` array gets mutated in this loop, acquiring a `query` property in each of its
+    // objects that gets used later to generate cell hrefs.
+    const header = [{ header: null }].concat(sortedCols.map((colInfo) => {
+        const categoryQuery = `${COL_CATEGORY}=${encoding.encodedURIComponent(colInfo.category)}`;
+        if (!colInfo.subcategory) {
+            // Add the category column links.
+            colInfo.query = categoryQuery;
+            return { header: <a href={`${context.search_base}&${colCategory}=${colInfo.category}`}>{colInfo.category}</a> };
+        }
+
+        // Add the subcategory column links.
+        const subCategoryQuery = `${COL_SUBCATEGORY}=${encoding.encodedURIComponent(colInfo.subcategory)}`;
+        colInfo.query = `${categoryQuery}&${subCategoryQuery}`;
+        return { header: <a className="sub" href={`${context.search_base}&${colCategory}=${colInfo.subcategory}`}>{colInfo.subcategory}</a> };
+    }));
+
+    // Generate the main table content including the data hierarchy, where the upper level of the
+    // hierarchy gets referred to here as "rowCategory" and the lower-level gets referred to as
+    // "rowSubCategory." Both these types of rows get collected into `matrixDataTable`. Also
+    // generate an array of React keys to use in with <DataMatrix> using an array index independent
+    // of the reduce-loop index because of spacer/expander row insertion.
+    let matrixRow = 1;
+    const rowKeys = ['column-categories'];
+    const rowCategoryBuckets = context.matrix.y[rowCategory].buckets.filter(r => r.key === selectedTab);
+    const rowCategoryColors = globals.biosampleTypeColors.colorList(rowCategoryBuckets.map(rowCategoryDatum => rowCategoryDatum.key));
+    const dataTable = rowCategoryBuckets.reduce((accumulatingTable, rowCategoryBucket, rowCategoryIndex) => {
+        // Each loop iteration generates one category row -- one iteration per top level of the row
+        // hierarchy.
+        const rowCategoryColor = rowCategoryColors[rowCategoryIndex];
+        const rowSubcategoryColor = tintColor(rowCategoryColor, 0.5);
+        const rowCategoryTextColor = isLight(rowCategoryColor) ? '#000' : '#fff';
+        const rowSubcategoryBuckets = rowCategoryBucket[rowSubcategory].buckets;
+        const expandableRowCategory = rowSubcategoryBuckets.length > SUB_CATEGORY_SHORT_SIZE;
+        const rowCategoryQuery = `${ROW_CATEGORY}=${encoding.encodedURIComponent(rowCategoryBucket.key)}`;
+
+        // Update the row key mechanism.
+        rowKeys[matrixRow] = rowCategoryBucket.key;
+        matrixRow += 1;
+
+        // Get the list of subcategory names, shortened if the category is isn't expanded.
+        const categoryExpanded = expandedRowCategories.indexOf(rowCategoryBucket.key) !== -1;
+        const visibleRowSubcategoryBuckets = categoryExpanded ? rowSubcategoryBuckets : rowSubcategoryBuckets.slice(0, SUB_CATEGORY_SHORT_SIZE);
+
+        // Generate one rowCategory's rows of subCategories, adding a header cell for each
+        // rowSubCategory on the left of the row.
+        const cells = Array(colCount);
+        const subcategoryRows = visibleRowSubcategoryBuckets.map((rowSubcategoryBucket) => {
+            const subCategoryQuery = `${ROW_SUBCATEGORY}=${encoding.encodedURIComponent(rowSubcategoryBucket.key)}`;
+
+            // Generate an array of data cells for a single row subcategory. This might combine the
+            // data from multiple reference epigenomes into one subcategory row -- effectively
+            // ORing the subcategory data from all reference epigenomes within one subcategory.
+            cells.fill(null);
+            rowSubcategoryBucket[colCategory].buckets.forEach((rowSubcategoryColCategoryBucket) => {
+                if (excludedAssays.indexOf(rowSubcategoryColCategoryBucket.key) === -1) {
+                    const rowSubcategoryColSubcategoryBuckets = rowSubcategoryColCategoryBucket[colSubcategory].buckets;
+                    if (rowSubcategoryColSubcategoryBuckets.length > 0) {
+                        // The column category has subcategories, so put relevant colored cells in the
+                        // subcategory columns.
+                        rowSubcategoryColSubcategoryBuckets.forEach((cellData) => {
+                            const colMapKey = `${rowSubcategoryColCategoryBucket.key}|${cellData.key}`;
+                            const colIndex = colMap[colMapKey].col;
+                            cells[colIndex] = {
+                                content: (
+                                    <a href={`${context.search_base}&assay_title=${cellData.key}`} style={{ backgroundColor: rowSubcategoryColor }}>
+                                        <span>{cellData.doc_count}</span>
+                                    </a>
+                                ),
+                            };
+                        });
+                    } else {
+                        // The column category does not have subcategories, so just add a colored
+                        // cell for the column category.
+                        const colIndex = colMap[rowSubcategoryColCategoryBucket.key].col;
+                        cells[colIndex] = {
+                            content: (
+                                <a href={`${context.search_base}&${rowCategoryQuery}&${subCategoryQuery}&${colMap[rowSubcategoryColCategoryBucket.key].query}`} style={{ backgroundColor: rowSubcategoryColor }}>
+                                    <span className="sr-only">Search {rowCategoryBucket.key}, {rowSubcategoryBucket.key} for {rowSubcategoryColCategoryBucket.key}</span>
+                                </a>
+                            ),
+                        };
+                    }
+                }
+            });
+
+            // Show category columns as disabled (i.e. nothing to see here) if those columns have
+            // subcategory columns.
+            colCategoriesWithSubcategories.forEach((colCategoryName) => {
+                cells[colMap[colCategoryName].col] = { content: <DisabledCell /> };
+            });
+
+            // Add a single subcategory row's data and left header to the matrix.
+            rowKeys[matrixRow] = `${rowCategoryBucket.key}|${rowSubcategoryBucket.key}`;
+            matrixRow += 1;
+            return {
+                rowContent: [
+                    {
+                        header: (
+                            <a href={`${context.search_base}&${rowCategoryQuery}&${subCategoryQuery}`}>
+                                <div className="subcategory-row-text">{rowSubcategoryBucket.key}</div>
+                            </a>
+                        ),
+                    },
+                ].concat(cells),
+                css: 'matrix__row-data',
+            };
+        });
+
+        // Generate a row for a rowCategory alone, concatenated with the rowSubcategory rows under it,
+        // concatenated with an spacer row that might be empty or might have a rowCategory expander
+        // button.
+        rowKeys[matrixRow] = `${rowCategoryBucket.key}-spacer`;
+        matrixRow += 1;
+        const categoryId = sanitizeId(rowKeys[matrixRow]);
+        return accumulatingTable.concat(
+            subcategoryRows,
+            [{
+                rowContent: [
+                    {
+                        content: (
+                            expandableRowCategory ?
+                                <RowCategoryExpander
+                                    categoryId={categoryId}
+                                    categoryName={rowCategoryBucket.key}
+                                    expanded={categoryExpanded}
+                                    expanderClickHandler={expanderClickHandler}
+                                    expanderColor={rowCategoryTextColor}
+                                    expanderBgColor={rowCategoryColor}
+                                />
+                            : null
+                        ),
+                    },
+                    {
+                        content: null,
+                        colSpan: 0,
+                    },
+                ],
+                css: `matrix__row-spacer${expandableRowCategory ? ' matrix__row-spacer--expander' : ''}`,
+            }]
+        );
+    }, [{ rowContent: header, css: 'targetmatrix__col-category-header' }]);
+    return { dataTable, rowKeys };
+};
+
+class TargetMatrixPresentation extends MatrixPresentation {
+    render() {
+        const { context } = this.props;
+        const displayedContext = this.state.organismContext || context;
+        const { scrolledRight } = this.state;
+
+        // Collect organisms for the tabs. `context` could change at any render, so we need to
+        // calculate `organismTabs` every render. `context` does not change with the selected
+        // organism tab.
+        let availableOrganisms = [];
+        const organismTabs = {};
+        const organismFacet = context.facets.find(facet => facet.field === 'replicates.library.biosample.donor.organism.scientific_name');
+        if (organismFacet) {
+            availableOrganisms = organismFacet.terms.map(term => term.key);
+            availableOrganisms.forEach((organismName) => {
+                if ((context.matrix.viewableTabs || []).includes(organismName)) {
+                    organismTabs[organismName] = <i>{organismName}</i>;
+                }
+            });
+        }
+
+        // Determine the currently selected tab from the query string.
+        let selectedTab = null;
+        const selectedOrganisms = this.query.getKeyValues('replicates.library.biosample.donor.organism.scientific_name');
+        if (selectedOrganisms.length === 1) {
+            // Query string specifies exactly one organism. Select the corresponding tab if it
+            // exists, otherwise don't select a tab.
+            selectedTab = availableOrganisms.includes(selectedOrganisms[0]) ? selectedOrganisms[0] : null;
+        }
+
+        // Convert encode matrix data to a DataTable object.
+        let dataTable;
+        let rowKeys;
+        let matrixConfig;
+        if (selectedTab) {
+            ({ dataTable, rowKeys } = convertTargetToDataTable(displayedContext, this.state.expandedRowCategories, this.expanderClickHandler, selectedTab));
+            matrixConfig = {
+                rows: dataTable,
+                rowKeys: rowKeys.filter((r, i) => i === 0 || r.includes(selectedTab)),
+                tableCss: 'matrix',
+            };
+        }
+
+        return (
+            <div className="matrix__presentation">
+                <div className={`matrix__label matrix__label--horz${!scrolledRight ? ' horz-scroll' : ''}`}>
+                    <span>{displayedContext.matrix.x.label}</span>
+                    {svgIcon('largeArrow')}
+                </div>
+                <div className="matrix__presentation-content">
+                    <div className="matrix__label matrix__label--vert"><div>{svgIcon('largeArrow')}{displayedContext.matrix.y.label}</div></div>
+                    <TabPanel tabs={organismTabs} selectedTab={selectedTab} handleTabClick={this.handleTabClick} tabPanelCss="matrix__data-wrapper">
+                        {dataTable ?
+                            <div className="matrix__data" onScroll={this.handleOnScroll} ref={(element) => { this.scrollElement = element; }}>
+                                {matrixConfig ?
+                                    <DataTable tableData={matrixConfig} />
+                                : null}
+                            </div>
+                        :
+                            <div className="matrix__warning">
+                                Select an organism to view data.
+                            </div>
+                        }
+                    </TabPanel>
+                </div>
+            </div>
+        );
+    }
+}
+
+TargetMatrixPresentation.propTypes = {
+    /** Matrix search result object */
+    context: PropTypes.object.isRequired,
+};
+
+TargetMatrixPresentation.contextTypes = {
+    navigate: PropTypes.func,
+};
+
+const TargetMatrixContent = ({ context }) => (
+    <div className="matrix__content matrix__content--reference-epigenome">
+        <TargetMatrixPresentation context={context} />
+    </div>
+);
+
+TargetMatrixContent.propTypes = {
+    /** Matrix search result object */
+    context: PropTypes.object.isRequired,
+};
+
+const TargetMatrix = ({ context }) => {
+    const itemClass = globals.itemClass(context, 'view-item');
+
+    if (context.total > 0) {
+        return (
+            <Panel addClasses={itemClass}>
+                <PanelBody>
+                    <MatrixHeader context={context} />
+                    <TargetMatrixContent context={context} />
+                </PanelBody>
+            </Panel>
+        );
+    }
+    return <h4>No results found</h4>;
+};
+
+TargetMatrix.propTypes = {
+    context: PropTypes.object.isRequired,
+};
+
+TargetMatrix.contextTypes = {
+    location_href: PropTypes.string,
+    navigate: PropTypes.func,
+    biosampleTypeColors: PropTypes.object, // DataColor instance for experiment project
+};
+
+globals.contentViews.register(TargetMatrix, 'TargetMatrix');
