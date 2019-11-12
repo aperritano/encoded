@@ -659,11 +659,8 @@ def parse_args():
     parser.add_argument('--iam-role-es', default='elasticsearch-instance', help="ES AWS iam role")
     parser.add_argument(
         '--image-id', 
-        default='ami-2133bc59',
-        help=(
-            "https://us-west-2.console.aws.amazon.com/ec2/home"
-            "?region=us-west-2#LaunchInstanceWizard:ami=ami-2133bc59"
-        )
+        default='ami-06d51e91cea0dac8d',
+        help=("AWS Launch wizard: ubuntu/images/hvm-ssd/ubuntu-bionic-18.04-amd64-server-20191002")
     )
     parser.add_argument(
         '--availability-zone', 
