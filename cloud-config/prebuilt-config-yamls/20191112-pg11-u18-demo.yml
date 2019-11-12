@@ -175,51 +175,51 @@ packages:
 # general
 - awscli
 - git
+# python
+- build-essential
+- libffi-dev
+- libssl-dev 
+- python3-dev
+- python3-pip
+- python3-venv
+- software-properties-common
 # redis
 - redis-server
 # es
 - elasticsearch
 # cloudwatchmon
-- python-virtualenv
 # node
 - nodejs
 # pg
 - daemontools
 - postgresql
 - postgresql-contrib
-# wal-e
-- python3.4-venv
-- lzop
-# cloudwatchmon
-- python2.7-dev
-# unknown
-- build-essential
-- apache2-mpm-worker
-- bsdtar
-- graphviz
-- libapache2-mod-wsgi-py3
-- libevent-dev
-- libfreetype6-dev
-- libjpeg-dev
-- liblcms2-dev
-- libmagic-dev
-- libpq-dev
-- libssl-dev
-- libtiff5-dev
-- libwebp-dev
-- libxml2-dev
-- libxslt1-dev
-- ntp
-- pv
-- python3.4-dev
-- python3-pip
-- python-software-properties
-- ruby-dev
-- unattended-upgrades
-- update-notifier-common
-- zlib1g-dev
-- libffi-dev
-- bsd-mailx
+# # wal-e
+# - lzop
+# # cloudwatchmon
+# # unknown
+# - build-essential
+# - apache2-mpm-worker
+# - bsdtar
+# - graphviz
+# - libapache2-mod-wsgi-py3
+# - libevent-dev
+# - libfreetype6-dev
+# - libjpeg-dev
+# - liblcms2-dev
+# - libmagic-dev
+# - libpq-dev
+# - libtiff5-dev
+# - libwebp-dev
+# - libxml2-dev
+# - libxslt1-dev
+# - ntp
+# - pv
+# - ruby-dev
+# - unattended-upgrades
+# - update-notifier-common
+# - zlib1g-dev
+# - bsd-mailx
 power_state:
   mode: reboot
 output:
@@ -227,19 +227,19 @@ output:
 runcmd:
 - sudo -u ubuntu git clone %(GIT_REPO)s /home/ubuntu/encoded
 - sudo -u ubuntu git -C /home/ubuntu/encoded checkout -b %(GIT_BRANCH)s origin/%(GIT_BRANCH)s
-- sudo -u ubuntu %(CC_DIR)s/post-boot-install.sh %(S3_AUTH_KEYS)s
-- sudo -u ubuntu %(CC_DIR)s/java11-oracle-install.sh
-- %(CC_DIR)s/redis-install.sh %(REDIS_PORT)s
-- %(CC_DIR)s/es-demo-install.sh
-- %(CC_DIR)s/cloudwatchmon-install.sh
-- %(CC_DIR)s/pg-install.sh off %(ROLE)s %(WALE_S3_PREFIX)s %(PG_VERSION)s
-- %(CC_DIR)s/encd-install.sh %(GIT_REPO)s %(GIT_BRANCH)s %(ROLE)s %(ES_IP)s %(ES_PORT)s %(REGION_INDEX)s
-- %(CC_DIR)s/a2en-run.sh
-- if test "%(ROLE)s" = "demo"
-- then
--   %(CC_DIR)s/batchupgrade-run.sh production.ini %(BATCHUPGRADE_VARS)s
-- fi
-- %(CC_DIR)s/post-install-install.sh
+# - sudo -u ubuntu %(CC_DIR)s/post-boot-install.sh %(S3_AUTH_KEYS)s
+# - sudo -u ubuntu %(CC_DIR)s/java11-oracle-install.sh
+# - %(CC_DIR)s/redis-install.sh %(REDIS_PORT)s
+# - %(CC_DIR)s/es-demo-install.sh
+# - %(CC_DIR)s/cloudwatchmon-install.sh
+# - %(CC_DIR)s/pg-install.sh off %(ROLE)s %(WALE_S3_PREFIX)s %(PG_VERSION)s
+# - %(CC_DIR)s/encd-install.sh %(GIT_REPO)s %(GIT_BRANCH)s %(ROLE)s %(ES_IP)s %(ES_PORT)s %(REGION_INDEX)s
+# - %(CC_DIR)s/a2en-run.sh
+# - if test "%(ROLE)s" = "demo"
+# - then
+# -   %(CC_DIR)s/batchupgrade-run.sh production.ini %(BATCHUPGRADE_VARS)s
+# - fi
+# - %(CC_DIR)s/post-install-install.sh
 users:
 - default
 - name: build
