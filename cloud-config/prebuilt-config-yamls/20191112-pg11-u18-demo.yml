@@ -18,6 +18,10 @@ packages:
 - elasticsearch
 # node
 - nodejs
+# node optional installed for native add-ons
+- gcc
+- g++
+- make
 # postgresql
 - daemontools
 - postgresql
