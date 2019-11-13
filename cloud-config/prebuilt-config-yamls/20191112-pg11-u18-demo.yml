@@ -8,7 +8,6 @@ bootcmd:
 - cloud-init-per once chmod-swapfile chmod 600 /swapfile
 - cloud-init-per once mkswap-swapfile mkswap /swapfile
 - cloud-init-per once curl-node curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-package_upgrade: true
 packages:
 - awscli
 - git
