@@ -140,8 +140,6 @@ bootcmd:
 - cloud-init-per once fallocate-swapfile fallocate -l 4G /swapfile
 - cloud-init-per once chmod-swapfile chmod 600 /swapfile
 - cloud-init-per once mkswap-swapfile mkswap /swapfile
-- cloud-init-per once apt-install-dirmngr apt-get install dirmngr
-- cloud-init-per once apt-key-es-gpg apt-key add /etc/apt/es_gpg_key
 package_upgrade: true
 packages:
 # general
@@ -238,7 +236,7 @@ write_files:
 - path: /etc/cron.d/cloudwatchmon
   content: |
     */5 * * * * nobody /opt/cloudwatchmon/bin/mon-put-instance-stats.py --mem-util --swap-util --disk-space-util --disk-path=/ --from-cron
-- path: /etc/apt/es_gpg_key
+- path: /etc/apt/trusted.gpg.d/elasticsearch_gpg_key.gpg
   content: |
     -----BEGIN PGP PUBLIC KEY BLOCK-----
     Version: GnuPG v2.0.14 (GNU/Linux)
