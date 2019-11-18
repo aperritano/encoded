@@ -161,6 +161,7 @@ $row-data-header-width: 200px;
         }
 
         > td {
+            position: relative;
             width: $data-cell-width;
             padding: 0 !important;
             text-align: center;
@@ -171,6 +172,8 @@ $row-data-header-width: 200px;
             > a {
                 display: block;
                 text-decoration: none;
+                height: 25px;
+                width:25px;
 
                 &:hover {
                     text-decoration: none;
@@ -392,6 +395,7 @@ $row-data-header-width: 200px;
 
     // Link to clear selected classifications (filters)
     @at-root #{&}__clear-classifications {
+        text-align: center;
         font-weight: normal;
     }
 }
@@ -520,6 +524,10 @@ table.matrix th.group-all-groups-cell {
     }
 }
 
+
+/**
+ * Styles specific to the reference-epigenome matrix.
+ */
 .matrix__content--reference-epigenome {
     display: block;
 
@@ -548,6 +556,10 @@ table.matrix th.group-all-groups-cell {
                     font-weight: normal;
                 }
             }
+        }
+
+        > td {
+            vertical-align: bottom;
         }
     }
 
@@ -586,5 +598,184 @@ table.matrix th.group-all-groups-cell {
             flex: 0 1 auto;
             margin: 0 2px;
         }
+    }
+}
+
+
+/**
+ * Styles specific to the ENTEx matrix.
+ */
+$donor-color-female-1: #879acd;
+$donor-color-female-2: #354b77;
+$donor-color-male-1: #edc764;
+$donor-color-male-2: #fbeab2;
+$donor-cell-width: 30px;
+$donor-cell-height: 30px;
+$border-color: #e0e0e0;
+
+.matrix__content--entex {
+    display: block;
+
+    .matrix__col-category-header {
+        > th {
+            width: $donor-cell-width - 1;
+            padding: 0;
+
+            > a {
+                width: $donor-cell-width;
+                line-height: $donor-cell-width;
+                font-weight: bold;
+
+                // Column subcategory links
+                &.sub {
+                    padding-top: 20px;
+                    font-weight: normal;
+                }
+            }
+        }
+    }
+
+    .matrix__row-data {
+        > th {
+            width: $donor-cell-width;
+            padding: 0;
+            border-left: none;
+
+            > a {
+                height: $donor-cell-height;
+                line-height: $donor-cell-height;
+            }
+
+            .subcategory-row-text {
+                white-space: nowrap;
+            }
+        }
+
+        > td {
+            width: $donor-cell-width - 1;
+            border-bottom: 1px solid $border-color;
+            border-left: 1px solid $border-color;
+
+            > a {
+                width: $donor-cell-width;
+                height: $donor-cell-height;
+            }
+
+            &:last-of-type {
+                border-right: 1px solid $border-color;
+            }
+        }
+
+        @at-root #{&}--first {
+            > th {
+                border-top: 1px solid $border-color;
+            }
+
+            > td {
+                border-top: 1px solid $border-color;
+            }
+        }
+    }
+
+    // Displays donor-quadrant in the matrix itself.
+    .donor-cell {
+        display: flex;
+        flex-wrap: wrap;
+        height: 100%;
+
+        .donor-quadrant {
+            flex: 0 0 50%;
+            height: 50%;
+        }
+    }
+
+    // Displays donor-quadrant in the legend.
+    .donor-legend {
+        min-width: 200px;
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+
+        // Styles each of the two rows of the legend.
+        @at-root #{&}__row {
+            display: flex;
+            flex-wrap: nowrap;
+        }
+
+        @at-root #{&}__female-label {
+            flex: 1;
+            text-align: right;
+            margin-right: 3px;
+            height: $donor-cell-height / 2;
+            line-height: $donor-cell-height / 2;
+        }
+
+        @at-root #{&}__male-label {
+            flex: 1;
+            text-align: left;
+            margin-left: 3px;
+            height: $donor-cell-height / 2;
+            line-height: $donor-cell-height / 2;
+        }
+
+        .donor-quadrant {
+            flex: 0 0 $donor-cell-width / 2;
+            width: $donor-cell-width / 2;
+            height: $donor-cell-height / 2;
+        }
+    }
+
+    .donor-quadrant {
+        &.donor-quadrant--female1 {
+            border-top-left-radius: $donor-cell-height / 2;
+            background-color: $donor-color-female-1;
+        }
+
+        &.donor-quadrant--male1 {
+            border-top-right-radius: $donor-cell-height / 2;
+            background-color: $donor-color-male-1;
+        }
+
+        &.donor-quadrant--female2 {
+            border-bottom-left-radius: $donor-cell-height / 2;
+            background-color: $donor-color-female-2;
+        }
+
+        &.donor-quadrant--male2 {
+            border-bottom-right-radius: $donor-cell-height / 2;
+            background-color: $donor-color-male-2;
+        }
+    }
+}
+
+
+.matrix__entex-corner {
+    vertical-align: bottom;
+}
+
+
+.donor-legend {
+    min-width: 200px;
+    font-size: 0.9rem;
+    margin-bottom: 5px;
+
+    @at-root #{&}__row {
+        display: flex;
+        flex-wrap: nowrap;
+    }
+
+    @at-root #{&}__female-label {
+        flex: 1 1 auto;
+        text-align: right;
+        margin-right: 3px;
+        height: $donor-cell-height / 2;
+        line-height: $donor-cell-height / 2;
+    }
+
+    @at-root #{&}__male-label {
+        flex: 1 1 auto;
+        text-align: left;
+        margin-left: 3px;
+        height: $donor-cell-height / 2;
+        line-height: $donor-cell-height / 2;
     }
 }
