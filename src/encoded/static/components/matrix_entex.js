@@ -1,9 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'underscore';
-import url from 'url';
 import * as encoding from '../libs/query_encoding';
-import QueryString from '../libs/query_string';
 import { svgIcon } from '../libs/svg-icons';
 import { Panel, PanelBody } from '../libs/ui/panel';
 import DataTable from './datatable';
@@ -169,7 +167,7 @@ const DonorCell = ({ donorQuadrants, donorDatum, rowCategory, rowSubcategory, co
         <div className="donor-cell">
             {donorQuadrants.map((quadrant, quadrantIndex) => {
                 const quadrantStyle = `donor-quadrant donor-quadrant--${donorDatum.includes(quadrant) ? donorQuadrantCss[quadrantIndex] : 'none'}`;
-                return <div key={quadrant} className={quadrantStyle} />;
+                return <div key={quadrantIndex} className={quadrantStyle} />;
             })}
             <div className="sr-only">{donorDatum.length} {donorDatum.length > 1 ? 'donors' : 'donor'}, {donorSummary}.</div>
             <div className="sr-only">Search {rowCategory}, {rowSubcategory} for {colCategory}, {colSubcategory === 'no_target' ? '' : colSubcategory}</div>
@@ -243,11 +241,14 @@ const getDonorQuadrants = (context) => {
         ))
     ));
 
-    // Need all four donors for this matrix to be renderable and meaningful.
-    if (accessions.female.length === 2 && accessions.male.length === 2) {
-        return [accessions.female[0], accessions.male[0], accessions.female[1], accessions.male[1]];
-    }
-    return null;
+    // Return all found donor accessions in the defined quadrant order. Any donors not found have
+    // the corresponding entry set to null or undefined.
+    return [
+        accessions.female ? accessions.female[0] : null,
+        accessions.male ? accessions.male[0] : null,
+        accessions.female ? accessions.female[1] : null,
+        accessions.male ? accessions.male[1] : null,
+    ];
 };
 
 
